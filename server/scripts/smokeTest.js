@@ -123,6 +123,21 @@ async function run() {
   assert(res.data.holdings.every((h) => h.id !== holdingId), 'Holding still present after delete');
   passed += 1;
 
+  console.log('13. Watchlist add/list/delete');
+  res = await request('POST', '/watchlist', { token, body: { symbol: 'AMD' } });
+  assert(res.status === 201 && res.data.item.symbol === 'AMD', 'Watchlist add failed');
+  const watchId = res.data.item.id;
+  res = await request('GET', '/watchlist', { token });
+  assert(res.status === 200 && res.data.watchlist.some((item) => item.id === watchId), 'Watchlist list failed');
+  res = await request('DELETE', `/watchlist/${watchId}`, { token });
+  assert(res.status === 200, 'Watchlist delete failed');
+  passed += 1;
+
+  console.log('14. Portfolio history');
+  res = await request('GET', '/portfolio/history', { token });
+  assert(res.status === 200 && Array.isArray(res.data.history), 'History failed');
+  passed += 1;
+
   console.log(`\nAll ${passed} checks passed.`);
 }
 

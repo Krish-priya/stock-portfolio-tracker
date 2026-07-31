@@ -1,10 +1,14 @@
 require('dotenv').config();
 
+const http = require('http');
 const express = require('express');
 const cors = require('cors');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
+const { initSocket } = require('./config/socket');
+const { startPriceBroadcast, stopPriceBroadcast } = require('./services/priceBroadcastService');
 
 const app = express();
+const server = http.createServer(app);
 
 const PORT = process.env.PORT || 5000;
 const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
@@ -15,7 +19,6 @@ const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
 app.use(
   cors({
     origin(origin, callback) {
-      // Allow non-browser tools (no Origin header) and configured frontends
       if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
         return callback(null, true);
       }
@@ -33,10 +36,22 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/holdings', require('./routes/holdingsRoutes'));
 app.use('/api/portfolio', require('./routes/portfolioRoutes'));
+app.use('/api/watchlist', require('./routes/watchlistRoutes'));
 
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+initSocket(server, allowedOrigins);
+startPriceBroadcast();
+
+server.listen(PORT, () => {
   console.log(`Stock Tracker API listening on http://localhost:${PORT}`);
 });
+
+function shutdown() {
+  stopPriceBroadcast();
+  server.close(() => process.exit(0));
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);

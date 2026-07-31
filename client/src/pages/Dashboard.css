@@ -5,45 +5,55 @@
   color: #222;
 }
 
-.dashboard-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 32px;
-  background: #fff;
-  border-bottom: 1px solid #ececf1;
-}
-
-.dashboard-header h1 {
-  font-size: 1.2rem;
-  margin: 0;
-}
-
-.dashboard-user {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  font-size: 0.9rem;
-  color: #444;
-}
-
-.logout-button {
-  padding: 7px 14px;
-  border: 1px solid #d8d8e0;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-
-.logout-button:hover {
-  background: #f4f4f7;
-}
-
 .dashboard-main {
   padding: 28px 32px 40px;
   max-width: 1100px;
   margin: 0 auto;
+}
+
+.analytics-grid,
+.movers-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.movers-card {
+  background: #fff;
+  border: 1px solid #ececf1;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.movers-card h3 {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+}
+
+.mover-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.9rem;
+}
+
+.mover-row:last-child {
+  border-bottom: none;
+}
+
+.price-flash {
+  animation: flashRow 0.8s ease;
+}
+
+@keyframes flashRow {
+  from {
+    background: #eef2ff;
+  }
+  to {
+    background: transparent;
+  }
 }
 
 .dashboard-toolbar {
@@ -260,7 +270,9 @@
     flex-direction: column;
   }
 
-  .summary-cards {
+  .summary-cards,
+  .analytics-grid,
+  .movers-grid {
     grid-template-columns: 1fr;
   }
 }

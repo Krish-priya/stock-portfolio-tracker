@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getErrorMessage } from '../utils/errors';
 import * as holdingsApi from '../api/holdings';
 import * as portfolioApi from '../api/portfolio';
 import Modal from '../components/Modal';
 import HoldingForm from '../components/HoldingForm';
+import Navbar from '../components/Navbar';
+import { AllocationChart, ValueHistoryChart } from '../components/PortfolioCharts';
+import useLivePrices from '../hooks/useLivePrices';
 import './Dashboard.css';
 
 function formatMoney(value) {
@@ -36,25 +38,32 @@ function gainClass(value) {
 }
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
   const [holdings, setHoldings] = useState([]);
   const [summary, setSummary] = useState(null);
+  const [allocation, setAllocation] = useState([]);
+  const [history, setHistory] = useState([]);
+  const [topMovers, setTopMovers] = useState({ gainers: [], losers: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalMode, setModalMode] = useState(null);
   const [editingHolding, setEditingHolding] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const { prices, flash, connected } = useLivePrices();
 
   const loadDashboard = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [holdingsData, summaryData] = await Promise.all([
+      const [holdingsData, summaryData, historyData] = await Promise.all([
         holdingsApi.getHoldings(),
         portfolioApi.getPortfolioSummary(),
+        portfolioApi.getPortfolioHistory(),
       ]);
       setHoldings(holdingsData);
       setSummary(summaryData.summary);
+      setAllocation(summaryData.allocation || []);
+      setTopMovers(summaryData.top_movers || { gainers: [], losers: [] });
+      setHistory(historyData);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -65,6 +74,27 @@ export default function Dashboard() {
   useEffect(() => {
     loadDashboard();
   }, [loadDashboard]);
+
+  const liveHoldings = useMemo(() => {
+    return holdings.map((holding) => {
+      const live = prices[holding.symbol];
+      if (!live?.price) return holding;
+      const quantity = Number(holding.quantity);
+      const buyPrice = Number(holding.buy_price);
+      const invested = quantity * buyPrice;
+      const currentValue = quantity * Number(live.price);
+      const gainLoss = currentValue - invested;
+      return {
+        ...holding,
+        current_price: Number(live.price),
+        current_value: Number(currentValue.toFixed(2)),
+        gain_loss: Number(gainLoss.toFixed(2)),
+        gain_loss_percent: invested === 0 ? 0 : Number(((gainLoss / invested) * 100).toFixed(2)),
+        change_percent: live.changePercent,
+        price_stale: Boolean(live.stale),
+      };
+    });
+  }, [holdings, prices]);
 
   function openCreate() {
     setEditingHolding(null);
@@ -112,22 +142,15 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-page">
-      <header className="dashboard-header">
-        <h1>Stock Portfolio Tracker</h1>
-        <div className="dashboard-user">
-          <span>{user?.name}</span>
-          <button onClick={logout} className="logout-button" type="button">
-            Log out
-          </button>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="dashboard-main">
         <div className="dashboard-toolbar">
           <div>
             <h2>My Holdings</h2>
             <p className="dashboard-subtitle">
-              Live prices {summary?.using_demo_prices ? '(demo mode — add a Finnhub API key for real quotes)' : 'from market data'}.
+              {connected ? 'Live prices streaming' : 'Reconnecting to live prices'}
+              {summary?.using_demo_prices ? ' · demo market data' : ''}.
             </p>
           </div>
           <button type="button" className="btn-primary" onClick={openCreate}>
@@ -154,6 +177,36 @@ export default function Dashboard() {
           </div>
         )}
 
+        {!loading && (
+          <div className="analytics-grid">
+            <AllocationChart allocation={allocation} />
+            <ValueHistoryChart history={history} />
+          </div>
+        )}
+
+        {!loading && (topMovers.gainers?.length > 0 || topMovers.losers?.length > 0) && (
+          <div className="movers-grid">
+            <div className="movers-card">
+              <h3>Top gainers</h3>
+              {topMovers.gainers.map((item) => (
+                <div key={`g-${item.symbol}`} className="mover-row">
+                  <strong>{item.symbol}</strong>
+                  <span className="positive">{formatPercent(item.gain_loss_percent)}</span>
+                </div>
+              ))}
+            </div>
+            <div className="movers-card">
+              <h3>Top losers</h3>
+              {topMovers.losers.map((item) => (
+                <div key={`l-${item.symbol}`} className="mover-row">
+                  <strong>{item.symbol}</strong>
+                  <span className="negative">{formatPercent(item.gain_loss_percent)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {error && (
           <div className="dashboard-banner error">
             <span>{error}</span>
@@ -165,7 +218,7 @@ export default function Dashboard() {
 
         {loading ? (
           <div className="dashboard-state">Loading holdings...</div>
-        ) : holdings.length === 0 ? (
+        ) : liveHoldings.length === 0 ? (
           <div className="dashboard-empty">
             <h3>No holdings yet</h3>
             <p>Add your first stock to start tracking your portfolio.</p>
@@ -189,8 +242,11 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {holdings.map((holding) => (
-                  <tr key={holding.id}>
+                {liveHoldings.map((holding) => (
+                  <tr
+                    key={holding.id}
+                    className={flash[holding.symbol] ? 'price-flash' : undefined}
+                  >
                     <td className="symbol-cell">
                       {holding.symbol}
                       {holding.price_stale ? <span className="stale-tag">stale</span> : null}
@@ -205,11 +261,7 @@ export default function Dashboard() {
                       <div className="gain-sub">{formatPercent(holding.gain_loss_percent)}</div>
                     </td>
                     <td className="actions-cell">
-                      <button
-                        type="button"
-                        className="link-button"
-                        onClick={() => openEdit(holding)}
-                      >
+                      <button type="button" className="link-button" onClick={() => openEdit(holding)}>
                         Edit
                       </button>
                       <button
