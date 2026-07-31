@@ -1,8 +1,29 @@
 import axios from 'axios';
 import { demoRequest, isDemoApiEnabled } from './demoApi';
 
+const defaultAdapter = axios.getAdapter(['xhr', 'http', 'fetch']);
+
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+  adapter: async (config) => {
+    if (isDemoApiEnabled()) {
+      try {
+        const result = await demoRequest(config);
+        return {
+          data: result.data,
+          status: result.status || 200,
+          statusText: 'OK',
+          headers: {},
+          config,
+          request: {},
+        };
+      } catch (err) {
+        return Promise.reject(err);
+      }
+    }
+
+    return defaultAdapter(config);
+  },
 });
 
 apiClient.interceptors.request.use((config) => {
@@ -12,14 +33,5 @@ apiClient.interceptors.request.use((config) => {
   }
   return config;
 });
-
-const realRequest = apiClient.request.bind(apiClient);
-
-apiClient.request = function demoAwareRequest(config) {
-  if (isDemoApiEnabled()) {
-    return demoRequest(config);
-  }
-  return realRequest(config);
-};
 
 export default apiClient;

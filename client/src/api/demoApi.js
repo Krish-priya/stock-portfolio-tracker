@@ -176,12 +176,36 @@ export function isDemoApiEnabled() {
   return hosted && pointsToLocal;
 }
 
+function normalizeUrl(rawUrl = '') {
+  try {
+    if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
+      const parsed = new URL(rawUrl);
+      return parsed.pathname.replace(/^\/api/, '') || '/';
+    }
+  } catch {
+    // fall through
+  }
+  return rawUrl.replace(/^\/api/, '') || '/';
+}
+
+function normalizeBody(data) {
+  if (data == null) return {};
+  if (typeof data === 'string') {
+    try {
+      return JSON.parse(data);
+    } catch {
+      return {};
+    }
+  }
+  return data;
+}
+
 export async function demoRequest(config) {
   ensureSeeded();
 
   const method = (config.method || 'get').toLowerCase();
-  const url = config.url || '';
-  const body = config.data || {};
+  const url = normalizeUrl(config.url || '');
+  const body = normalizeBody(config.data);
 
   if (url === '/health' && method === 'get') {
     return ok({ status: 'ok', message: 'Demo API mode' });
