@@ -6,9 +6,103 @@
 }
 
 .dashboard-main {
-  padding: 28px 32px 40px;
+  padding: 28px 32px 64px;
   max-width: 1100px;
   margin: 0 auto;
+}
+
+.dashboard-section {
+  margin-bottom: 28px;
+}
+
+.section-heading {
+  margin-bottom: 12px;
+}
+
+.section-heading h3 {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+}
+
+.section-heading p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.insight-card,
+.tips-panel {
+  background: #fff;
+  border: 1px solid #ececf1;
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.insight-card h3,
+.tips-panel h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.insight-card p,
+.tips-panel p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.insight-card ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #64748b;
+  line-height: 1.6;
+  font-size: 0.9rem;
+}
+
+.tips-panel {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.tips-list {
+  display: grid;
+  gap: 12px;
+}
+
+.tips-list div {
+  display: grid;
+  gap: 2px;
+}
+
+.tips-list strong {
+  font-size: 0.9rem;
+}
+
+.tips-list span {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.dashboard-footer {
+  margin-top: 8px;
+  padding: 20px 0 8px;
+  border-top: 1px solid #e5e7eb;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.dashboard-footer p {
+  margin: 0;
 }
 
 .analytics-grid,
@@ -272,7 +366,9 @@
 
   .summary-cards,
   .analytics-grid,
-  .movers-grid {
+  .movers-grid,
+  .insights-grid,
+  .tips-panel {
     grid-template-columns: 1fr;
   }
 }

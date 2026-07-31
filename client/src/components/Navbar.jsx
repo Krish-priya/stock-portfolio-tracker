@@ -10,7 +10,7 @@ export default function Navbar() {
   return (
     <header className="navbar">
       <Link to={isAuthenticated ? '/dashboard' : '/'} className="navbar-brand">
-        <img src="/logo.png" alt="" />
+        <img src="/logo.svg" alt="" />
         <span>Stock Portfolio Tracker</span>
       </Link>
 

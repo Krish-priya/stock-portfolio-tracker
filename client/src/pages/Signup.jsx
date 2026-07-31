@@ -38,7 +38,7 @@ export default function Signup() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-brand">
-          <img src="/logo.png" alt="Stock Portfolio Tracker logo" />
+          <img src="/logo.svg" alt="Stock Portfolio Tracker logo" />
           <span>Stock Portfolio Tracker</span>
         </div>
         <h1>Create your account</h1>

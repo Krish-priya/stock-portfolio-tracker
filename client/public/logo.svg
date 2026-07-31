@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Stock Portfolio Tracker">
+  <rect width="128" height="128" rx="28" fill="#4F46E5"/>
+  <rect x="22" y="72" width="16" height="34" rx="4" fill="#FFFFFF"/>
+  <rect x="46" y="52" width="16" height="54" rx="4" fill="#C7D2FE"/>
+  <rect x="70" y="38" width="16" height="68" rx="4" fill="#FFFFFF"/>
+  <rect x="94" y="24" width="16" height="82" rx="4" fill="#A5B4FC"/>
+  <path d="M24 40 L48 54 L72 34 L104 20" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="104" cy="20" r="7" fill="#FDE68A"/>
+</svg>

@@ -178,33 +178,45 @@ export default function Dashboard() {
         )}
 
         {!loading && (
-          <div className="analytics-grid">
-            <AllocationChart allocation={allocation} />
-            <ValueHistoryChart history={history} />
-          </div>
+          <section className="dashboard-section">
+            <div className="section-heading">
+              <h3>Analytics</h3>
+              <p>Scroll to explore allocation breakdown and portfolio value history.</p>
+            </div>
+            <div className="analytics-grid">
+              <AllocationChart allocation={allocation} />
+              <ValueHistoryChart history={history} />
+            </div>
+          </section>
         )}
 
         {!loading && (topMovers.gainers?.length > 0 || topMovers.losers?.length > 0) && (
-          <div className="movers-grid">
-            <div className="movers-card">
-              <h3>Top gainers</h3>
-              {topMovers.gainers.map((item) => (
-                <div key={`g-${item.symbol}`} className="mover-row">
-                  <strong>{item.symbol}</strong>
-                  <span className="positive">{formatPercent(item.gain_loss_percent)}</span>
-                </div>
-              ))}
+          <section className="dashboard-section">
+            <div className="section-heading">
+              <h3>Market movers in your portfolio</h3>
+              <p>Biggest percentage winners and laggards based on your buy prices.</p>
             </div>
-            <div className="movers-card">
-              <h3>Top losers</h3>
-              {topMovers.losers.map((item) => (
-                <div key={`l-${item.symbol}`} className="mover-row">
-                  <strong>{item.symbol}</strong>
-                  <span className="negative">{formatPercent(item.gain_loss_percent)}</span>
-                </div>
-              ))}
+            <div className="movers-grid">
+              <div className="movers-card">
+                <h3>Top gainers</h3>
+                {topMovers.gainers.map((item) => (
+                  <div key={`g-${item.symbol}`} className="mover-row">
+                    <strong>{item.symbol}</strong>
+                    <span className="positive">{formatPercent(item.gain_loss_percent)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="movers-card">
+                <h3>Top losers</h3>
+                {topMovers.losers.map((item) => (
+                  <div key={`l-${item.symbol}`} className="mover-row">
+                    <strong>{item.symbol}</strong>
+                    <span className="negative">{formatPercent(item.gain_loss_percent)}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          </section>
         )}
 
         {error && (
@@ -227,57 +239,120 @@ export default function Dashboard() {
             </button>
           </div>
         ) : (
-          <div className="holdings-table-wrap">
-            <table className="holdings-table">
-              <thead>
-                <tr>
-                  <th>Symbol</th>
-                  <th>Quantity</th>
-                  <th>Buy Price</th>
-                  <th>Current Price</th>
-                  <th>Invested</th>
-                  <th>Current Value</th>
-                  <th>Gain / Loss</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {liveHoldings.map((holding) => (
-                  <tr
-                    key={holding.id}
-                    className={flash[holding.symbol] ? 'price-flash' : undefined}
-                  >
-                    <td className="symbol-cell">
-                      {holding.symbol}
-                      {holding.price_stale ? <span className="stale-tag">stale</span> : null}
-                    </td>
-                    <td>{formatQuantity(holding.quantity)}</td>
-                    <td>{formatMoney(holding.buy_price)}</td>
-                    <td>{formatMoney(holding.current_price)}</td>
-                    <td>{formatMoney(holding.total_invested)}</td>
-                    <td>{formatMoney(holding.current_value)}</td>
-                    <td className={gainClass(holding.gain_loss)}>
-                      {formatMoney(holding.gain_loss)}
-                      <div className="gain-sub">{formatPercent(holding.gain_loss_percent)}</div>
-                    </td>
-                    <td className="actions-cell">
-                      <button type="button" className="link-button" onClick={() => openEdit(holding)}>
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        className="link-button danger"
-                        onClick={() => handleDelete(holding)}
-                        disabled={deletingId === holding.id}
-                      >
-                        {deletingId === holding.id ? 'Deleting...' : 'Delete'}
-                      </button>
-                    </td>
+          <section className="dashboard-section">
+            <div className="section-heading">
+              <h3>Holdings detail</h3>
+              <p>Edit positions anytime. Rows flash when a live price update arrives.</p>
+            </div>
+            <div className="holdings-table-wrap">
+              <table className="holdings-table">
+                <thead>
+                  <tr>
+                    <th>Symbol</th>
+                    <th>Quantity</th>
+                    <th>Buy Price</th>
+                    <th>Current Price</th>
+                    <th>Invested</th>
+                    <th>Current Value</th>
+                    <th>Gain / Loss</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {liveHoldings.map((holding) => (
+                    <tr
+                      key={holding.id}
+                      className={flash[holding.symbol] ? 'price-flash' : undefined}
+                    >
+                      <td className="symbol-cell">
+                        {holding.symbol}
+                        {holding.price_stale ? <span className="stale-tag">stale</span> : null}
+                      </td>
+                      <td>{formatQuantity(holding.quantity)}</td>
+                      <td>{formatMoney(holding.buy_price)}</td>
+                      <td>{formatMoney(holding.current_price)}</td>
+                      <td>{formatMoney(holding.total_invested)}</td>
+                      <td>{formatMoney(holding.current_value)}</td>
+                      <td className={gainClass(holding.gain_loss)}>
+                        {formatMoney(holding.gain_loss)}
+                        <div className="gain-sub">{formatPercent(holding.gain_loss_percent)}</div>
+                      </td>
+                      <td className="actions-cell">
+                        <button type="button" className="link-button" onClick={() => openEdit(holding)}>
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="link-button danger"
+                          onClick={() => handleDelete(holding)}
+                          disabled={deletingId === holding.id}
+                        >
+                          {deletingId === holding.id ? 'Deleting...' : 'Delete'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {!loading && (
+          <>
+            <section className="dashboard-section insights-grid">
+              <article className="insight-card">
+                <h3>Portfolio health</h3>
+                <p>
+                  You currently track <strong>{summary?.holdings_count || 0}</strong> holdings.
+                  Diversification looks strongest when no single symbol dominates allocation.
+                </p>
+              </article>
+              <article className="insight-card">
+                <h3>Live market feed</h3>
+                <p>
+                  Socket status is <strong>{connected ? 'connected' : 'reconnecting'}</strong>.
+                  Price cells update automatically when the server broadcasts new quotes.
+                </p>
+              </article>
+              <article className="insight-card">
+                <h3>Next actions</h3>
+                <ul>
+                  <li>Add another holding to refine allocation</li>
+                  <li>Open Watchlist to follow tickers you do not own yet</li>
+                  <li>Compare value history against your invested capital</li>
+                </ul>
+              </article>
+            </section>
+
+            <section className="dashboard-section tips-panel">
+              <div>
+                <h3>How to read this dashboard</h3>
+                <p>
+                  Start with the summary cards for total performance, then use allocation and history
+                  charts for context. Holdings detail is your source of truth for each position.
+                </p>
+              </div>
+              <div className="tips-list">
+                <div>
+                  <strong>Green values</strong>
+                  <span>Unrealized gain versus your buy price</span>
+                </div>
+                <div>
+                  <strong>Red values</strong>
+                  <span>Unrealized loss versus your buy price</span>
+                </div>
+                <div>
+                  <strong>Stale tag</strong>
+                  <span>Showing last known quote while refresh is delayed</span>
+                </div>
+              </div>
+            </section>
+
+            <footer className="dashboard-footer">
+              <p>Stock Portfolio Tracker · Scroll for summary, analytics, movers, holdings, and insights</p>
+            </footer>
+          </>
         )}
       </main>
 
