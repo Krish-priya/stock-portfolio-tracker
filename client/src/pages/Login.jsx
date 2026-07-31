@@ -101,6 +101,7 @@ export default function Login() {
               <h2>Explore a sample portfolio</h2>
               <p>
                 Instantly view live holdings, prices, and gains — no signup required.
+                On the live website, guest mode works with built-in demo data.
               </p>
             </div>
           </div>

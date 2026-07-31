@@ -15,7 +15,7 @@ Full-stack stock portfolio tracker with auth, holdings CRUD, live/demo prices, a
 - **GitHub:** https://github.com/Krish-priya/stock-portfolio-tracker
 - **Frontend (Vercel):** https://stock-portfolio-tracker-seven.vercel.app
 
-> The Vercel frontend needs a public API URL for full login/data. Locally, use the client + server below.
+> On Vercel, **Continue as guest** uses built-in browser demo mode (because the public site cannot call your local `localhost:5000` API). Locally, the React app still uses your real Express + MySQL backend.
 
 ## Local Setup
 
