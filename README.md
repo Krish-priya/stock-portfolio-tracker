@@ -58,6 +58,13 @@ cd server
 npm run smoke-test
 ```
 
+## Live links
+
+- **GitHub:** https://github.com/Krish-priya/stock-portfolio-tracker
+- **Frontend (Vercel):** https://stock-portfolio-tracker-seven.vercel.app
+
+> Note: the Vercel frontend still needs a **public backend + MySQL** to log in / load data. Locally use `http://localhost:5000`. After you host the API, set `VITE_API_BASE_URL` on Vercel and `CLIENT_ORIGIN` on the server to the Vercel URL.
+
 ## Production notes
 
 - **Frontend (Vercel):** deploy the `client` folder. Set:
